@@ -47,6 +47,6 @@ I will use this repos to take down notes while learning and practice the skill I
 # Title
 ## Subtitle
 
-git branch  
-git branch test_info  
-git checkout test_info
+* git branch  
+* git branch test_info  
+* git checkout test_info

@@ -126,11 +126,10 @@ I will use this repos to take down notes while learning and practice the skill I
             - jupyter
             - pytest [this two are for automatic testing]
             - pytest-pycodestyle
-    1. touch .gitignore
+    1. touch .gitignore  [.github/.DS_Store, venv_name]
     2. pip install -r requirements.txt
     3. pip list [show what package you download]
     3. git add .gitignore
-       git add requirements.txt
     3. git commit
     3. git push branch
     3. deactivate
@@ -148,6 +147,10 @@ I will use this repos to take down notes while learning and practice the skill I
     1. "ctrl+enter"  [run but don‘t create new line]
     1. cell-> cell type -> markdown
     1. "ctrl+C" to exit
+
+* create a new jupyter notebook:
+    - in terminal-type "jupyter notebook"
+    - new-python3
 
 * sometime we don‘t push branches, we just commit them and leave them, then swith to main branch
 
@@ -292,13 +295,12 @@ import module_name
 ```
 import pytest 
 
-@pytest.mark.parametrize("HDL_input, expected",
-[
+@pytest.mark.parametrize("HDL_input, expected", [
 (65, "Normal"),
 (40, "Borderline Low"),
 (20, "Low")
 ])
-def test_HDL_analysis(expected, HDL_input):
+def test_HDL_analysis(HDL_input, expected):
     from blood_calculator import HDL_analysis
     # Arrange
     # HDL_input = 65
@@ -437,3 +439,381 @@ def test_add():
     ```
     [patient now is dictionary]
 
+    * object-oriented programming:
+        - use of class:
+            + put all the data and methods to a capsule
+        - example:
+        ```
+        class Patient:
+    
+        def __init__(self):
+        self.first_name = ""
+        self.last_name = ""
+        self.mrn = 0
+        self.age = 0
+        self.tests = []
+
+        def get_full_name(self):
+        full_name = "{} {}".format(self.first_name,
+                                   self.last_name)
+        return full_name
+
+
+        def main():
+        new_patient = Patient()
+        print(new_patient)
+        print(new_patient.get_full_name())
+
+
+        if __name__ == "__main__":
+        main()
+        ```
+        * class name capitaled in PEP8
+        - new_patient = Patient() [create a new instance]
+        - print shows the memory location
+        - each class variable has its instance [instance's value can be changed but it is pointed to a certain location when new_patient is created.]
+        - always put `self` at the frist place of the parameter list
+        - python will ignore `self` when calling the function
+        - when save sth to part of the class instance, use `self`
+
+
+    * __init__() function ["__" in python means special name in python]
+
+    * module examples:
+    [i0]
+
+
+* json
+https://github.com/dward2/BME547/blob/main/Lectures/json.md
+
+* docstrings
+https://github.com/dward2/BME547/blob/main/Lectures/docstrings.md
+
+* `jupyter notebook jupyter_practice.ipynb` [run xx.ipynb file]
+* in_file = open("input_data.txt","r")
+https://github.com/dward2/BME547/blob/main/Lectures/file_input.md
+    - first string: file_name [
+        - if want to open a file in the main folder of your repository, just file_name 
+        - if in other folders, folder_name/file_name ]
+* second string:
+    - "r" - read
+    - "w" - write
+    - "a" - append
+* read a file
+    ``` 
+    in_file = open("input_data.txt","r")
+    fruits = in_file.readlines()
+    print(fruits)
+    in_file.close()
+    ```
+    - file_name.readlines() [read all file]
+    - file_name.readline() [read one line]??? seperaete??
+    - in_file = open()
+    - in_file.close()
+    ```
+    in_file = open("input_data.txt", "r")
+    for line in in_file:
+        print(line, end="")
+    ```
+
+* close file:
+    - with open("input_file.txt", "r") as in_file:
+    [the file automatically closed once `with` block finished]
+    ```
+    with open("input_file.txt", "r") as in_file:
+    for line in in_file:
+        print(line, end="")
+    ``` 
+    - in_file.close()
+
+* .strip("xx") [remove leading and trailing characters or sign]
+    - \n, \t
+    - 
+
+* test_results = [int(i) for i in tests]
+[i1]
+
+* print(line, end="")
+
+* two main errors in python:
+https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
+    - SyntaxError [python can not translate the code][code didn't run]
+    - Anything else: exception errors [can run but some mistakes exist]
+    [i2]
+    - try/except
+    - `finally` clause
+    - raise exceptions
+    - test for raised exceptions
+    ```
+    with pytest.raises(ValueError):
+        move_direction("L")
+    ```
+    [i3]
+    - warning
+    [i4]
+    - sys.exit()
+
+
+# Lec Feb 17__logging/Numpy/Matplotlib
+* test case only have one __single__ reason to fail
+    * always arrage conditionals logically
+
+* python org --find functions
+  pypi.org --find packages [python pacakage index]
+  packages-modules[math]-functions[.sqrt]
+
+* logging: print result to a file, not to the console
+* logging package are default library in python, no need to include in venv but need to import
+
+* levels in the logging module;
+    least important to most important:
+    debug-info-warning-error-critical
+* change logging level:
+    if __name__ == '__main__':
+        logging.basicConfig(level = logging.INFO, filename = "signal.log", filemode = "w")
+    - filemode: a(default), w
+* order:
+    1. import logging
+    2. write logging command: eg: logging.info("xxx")
+    3. logging.basicConfig(level = logging.INFO, filename = "signal.log", filemode = "w")
+    4. unit test for logging
+        https://github.com/dward2/BME547/blob/main/Resources/testing_logging.md
+        1. include `testfixtures` in venv
+        2. write unit testing
+            ```
+            # test_my_functions.py
+                from testfixtures import LogCapture
+
+                def test_log_if_negative_is_made():
+                    from my_functions import log_if_negative
+                    with LogCapture() as log_c:
+                        log_if_negative(-1)
+                    log_c.check(("root", "INFO", "a is a negative number"))
+            ```
+* elif new_data not in "+-0"  [`not in`]
+
+* file.read(1)  [return 1 byte in the file, continue reading for the second command]
+
+* import numpy as np
+    - list in python vs array in numpy
+        list: with ","
+        array: without ","
+    - np.zeros(10, dtype=int)  [default type is float]
+      np.ones(10)
+    - np.arange(start:end:interval)  eg:[(0,10,0.1)] [default interval is 1]
+    - np.sin(t)
+* import matplotlib.pyplot as plt
+    - plt.plot(t,y1)
+    - plt.plot(t,y2)  [plots are shown in one window]
+    - plt.show()
+    - plt.legend
+* data = np.loadtxt(filename, delimiter=",", dtype=int)
+    load each row as an element
+
+* and or conditionals
+
+* When starting a new repository, this is what I would do first.  I would first make a branch called “repo_setup”.  On this branch, I would create, add, and commit the following files to the repository:
+    
+    1. The “requirements.txt” file that contains at least “pytest” and “pytest-pycodestyle”. ("Jupyter","Numpy","matplotlib")
+        - touch .gitignore  [.github/.DS_Store, venv_name]
+    2. Create the “.github/workflows/pytest_runner.yml” file.
+    3. A python script file (example: cell_assay.py) that contains the single command “pass”. [new line at the end of the file]    (The reason this file is included is because pytest will fail and cause GitHub Actions to fail if pytest cannot find any python files to analyze.)
+    
+    The presence of these three files should allow GitHub Actions to run and successfully pass.  Once you see that GitHub Actions passes, merge this branch into the main branch.  Then, all of these files will exist on all new branches in the future and GitHub Actions will run.  You can then create a new branch and start adding your code to the python script that you created.
+
+    4. Create venv
+        0. create a new branch to setup venv
+        1. python -m venv myvenv [on Mac][create virtual environment]
+        2. source virtual_env_name/bin/activate [activate the env]
+        3. pip install -r requirements.txt
+        3. git commit
+        3. git push branch
+        3. deactivate
+
+* codes to keep the program running:
+  - 
+    while True:  [keep the program running]
+        result = read_person_info(first_line, in_file)
+        first_line = result
+        if result is False:
+            break  [break the loop]
+
+# Lec Feb 22__Functional Decomposition
+- write flow chart:
+    - decompose functions [F271][F272]
+
+- assignment6
+    - breath time is not important, just make it consistent
+    - license: 40:52 in video
+
+# Lec Feb 24__IDEs/Dubugging
+- dubbugger
+- VS code: 
+ - clone a repo
+ - open an existing repo
+ - select Python interpreter
+ - create venv
+ 
+
+
+# Lec March 3__
+* Flask Handler
+    1. get input
+    2. call other functions
+    3. return a response
+
+* np array need coma between elements, even if it is not shown on screen
+
+* always use jsonify
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import logging
+import json
+from scipy.signal import find_peaks
+
+def cpap_measurement(filename):
+    in_file = filename
+    data = input_data_entry(in_file)
+    data = parse_data(data)
+    data = calculate_flow(data)
+    [duration, breaths, breath_rate_bpm, breath_times, 
+     apnea_count, leakage] = calculate_key_values(data)
+    patient_metrics = create_metrics(duration, breaths, breath_rate_bpm, 
+                                     breath_times, apnea_count, leakage)
+    out_json = output_file_json(patient_metrics)
+    return
+
+
+def input_data_entry(in_file):
+    data = np.loadtxt(in_file, delimiter=",", dtype="str")
+    logging.info("This is the start of data analysis. \
+                 The name of the input file is {}.".format(in_file))
+    return data
+ 
+def parse_data(data):
+    bad_line = []
+    number = 0
+    for i, line in enumerate(data[1:]):
+        if len(line) < 7:
+            logging.error("The data point in line {} is missing.".format(i))
+            bad_line[number] = i
+            number += 1
+        else:
+            if line[0] == "NaN":
+                logging.error("The data point in line {} is NaN(incorrect).".format(i))
+                bad_line[number] = i
+                number += 1
+                continue
+            try:
+                line[0] = float(line[0])
+            except ValueError:
+                logging.error("The data point in line {} is a non-numeric string(incorrect).".format(i))
+                bad_line[number] = i
+                number += 1
+                continue
+            for element in line[1:]:
+                if element == "NaN":
+                    logging.error("The data point in line {} is NaN(incorrect).".format(i))
+                    bad_line[number] = i
+                    number += 1
+                try:
+                    element = int(element)
+                except ValueError:
+                    logging.error("The data point in line {} is a non-numeric string.".format(i))
+                    bad_line[number] = i
+                    number += 1
+                    continue
+                pressure = [(25.4) / (14745 - 1638)] * (element - 1638)
+                element = pressure
+    np.delete(data, bad_line)
+    return data
+    
+def calculate_flow(data):
+    air_density = 1.199  # units = kg/m^3
+    d1 = 15 # the diameter of the larger part of the venturi tube, units = mm
+    d2 = 12 # the diameter of the constriction, units = mm
+    A1 = (d1/2)**2 * np.pi 
+    A2 = (d2/2)**2 * np.pi
+    data[0][7] = "Volumetric flow rate Q [m^3/sec]"
+    for line in data[1:]:
+        p2 = line[1]
+        if line[2] >= line[3]:
+            p1 = line[2]
+            direction = 1
+        else:
+            p1 = line[3]
+            direction = -1
+        Q = A1 * np.sqrt( (2/air_density) * (p1-p2) / ((A1/A2)**2 - 1)  ) * direction
+        line[7] = Q
+        return data
+
+def calculate_key_values(data):
+    data = np.delete(data, [1, 2, 3, 4, 5, 6], axis = 1)
+    duration = data[len(data)-1][0] - data[1][0]
+    
+    time = data[1:,0]
+    Q = data[1:, 1]
+    plt.plot(time, Q)
+
+    positive_peak_flow = 0
+    pos_t = 0
+    negative_peak_flow = 0
+    neg_t = 0
+
+    peak_times = []
+    t = 0
+    for line in data:
+        t = line[0]
+        if line[1] >= positive_peak_flow:
+            positive_peak_flow = line[1]
+            pos_t = t
+        if line[1] <= negative_peak_flow:
+            negative_peak_flow = line[1]
+            neg_t = t
+
+
+            count += 1
+
+
+    breaths = 
+    return duration, breaths, breath_rate_bpm, breath_times, apnea_count, leakage
+
+def create_metrics(duration, breaths, breath_rate_bpm, breath_times, apnea_count, leakage):
+    patient_metrics = {
+        "duration": duration,
+        "breaths": breaths,
+        "breath_rate_bpm": breath_rate_bpm,
+        "breath_times": breath_times,
+        "apnea_count": apnea_count,
+        "leakage": leakage
+    }
+    return patient_metrics
+
+def output_file_json(metrics_dict, filename):
+    out_name = filename.split(".")[0] + ".json"
+    out_file = open(out_name, "w")
+    json.dump(metrics_dict, out_file)
+    out_file.close()
+    return out_name
+
+
+if __name__ == "main":
+    filename = "sample_data/patient_01.txt"
+    logging.basicConfig(level = logging.INFO, filename = "cpap.log",
+                        filemode = "w")
+    cpap_measurement(filename)
+
+
+# Lec March 10__debug server
+
+run server -> run client
+
+assignment:
+
+marking
+fakes
+
+integrate the unit tests

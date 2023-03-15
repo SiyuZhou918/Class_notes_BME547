@@ -653,6 +653,23 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
  - open an existing repo
  - select Python interpreter
  - create venv
+ - create new branch
+ - step into/over/out
+ - commit
+ - debugger:
+    - how to find error:
+        - debug the file without breakpoint
+        - get the lightning sign
+        - set a breakpoint at the lightning sign
+        - set the condition
+        - resume the program
+        
+
+
+
+- debug:
+ - set breakpoint
+ - run debugger
  
 
 

@@ -653,7 +653,50 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
  - open an existing repo
  - select Python interpreter
  - create venv
+ - create new branch
+ - step into/over/out
+ - commit
+ - debugger:
+    - how to find error:
+        - debug the file without breakpoint
+        - get the lightning sign
+        - set a breakpoint at the lightning sign
+        - set the condition
+        - resume the program
+- debug:
+ - set breakpoint
+ - run debugger
  
+
+# Lec March 1__Requests and Quick Flask
+- The client: A client is anyone (in our case, a computer program on our local computer) that wants to interact or share information with a web server or service.
+- Web Server or Service: A web server or service is a program running on a separate machine (another computer, a cloud computer, or a computer cluster).
+- API: An Application Programming Interface (API) provides instructions and/or an interface for accessing the functionality of a program or package.
+- RESTful APIs: APIs in the cloud and are how we interact with web servers. [Making requests on the web]
+  [Instead of installing and calling packages on our local computer, RESTful APIs allow us to call functionality in the cloud (on a server).]
+- Requests: A client makes a "request" of the server in order to interact.
+- Response: The server sends a "response" back to the client after a request. This response is often encoded as a JSON string. JSON strings are a standard method for information interchange over the internet.
+- URL: uniform resource locator [Calls to web services are done through URLs][URLs can be thought of as a function name to access a particular functionality of a server.]
+- endpoint
+- two main types of requests:
+    - GET
+    r = requests.get("https://api.github.com/repos/dward2/BME547/branches") [r = requests.get("<a string of URL of the website that I want to make requests to>/<put endpoints or route of the server I want>") ]
+    [`get request method` can also be used by `using the server(browser)`, but `post request` can not】
+    - POST
+    r = requests.post("http://vcm-21170.vm.duke.edu:5000/student", json=out_data) [you need to tell what type of data you will send]
+- print(r) [ex: Response [200]]
+- r.status_code [ex: 200][response code][tells you whether the request is good or not][ex: 404 tells you doesn't exist][200: status for good request] --[Always print that to make sure everything is good]
+- r.text [tells us what comes back from the server]
+- branches = r.json() [decode the JSON text string into a Python native variable type]__[always debug the file here to see what will be printed out]
+
+# GitHub Copilot;
+- Pycharm:
+See suggestions on a new tab: press Command+Shift+A, then click Open GitHub Copilot, or press Command+Shift+\ to open the new tab immediately
+- describe something you want to do using natural language within a comment
+- VS code:
+To open a new tab with multiple additional options, press Ctrl+Enter.
+
+
 
 
 # Lec March 3__
@@ -668,143 +711,7 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
 
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-import logging
-import json
-from scipy.signal import find_peaks
 
-def cpap_measurement(filename):
-    in_file = filename
-    data = input_data_entry(in_file)
-    data = parse_data(data)
-    data = calculate_flow(data)
-    [duration, breaths, breath_rate_bpm, breath_times, 
-     apnea_count, leakage] = calculate_key_values(data)
-    patient_metrics = create_metrics(duration, breaths, breath_rate_bpm, 
-                                     breath_times, apnea_count, leakage)
-    out_json = output_file_json(patient_metrics)
-    return
-
-
-def input_data_entry(in_file):
-    data = np.loadtxt(in_file, delimiter=",", dtype="str")
-    logging.info("This is the start of data analysis. \
-                 The name of the input file is {}.".format(in_file))
-    return data
- 
-def parse_data(data):
-    bad_line = []
-    number = 0
-    for i, line in enumerate(data[1:]):
-        if len(line) < 7:
-            logging.error("The data point in line {} is missing.".format(i))
-            bad_line[number] = i
-            number += 1
-        else:
-            if line[0] == "NaN":
-                logging.error("The data point in line {} is NaN(incorrect).".format(i))
-                bad_line[number] = i
-                number += 1
-                continue
-            try:
-                line[0] = float(line[0])
-            except ValueError:
-                logging.error("The data point in line {} is a non-numeric string(incorrect).".format(i))
-                bad_line[number] = i
-                number += 1
-                continue
-            for element in line[1:]:
-                if element == "NaN":
-                    logging.error("The data point in line {} is NaN(incorrect).".format(i))
-                    bad_line[number] = i
-                    number += 1
-                try:
-                    element = int(element)
-                except ValueError:
-                    logging.error("The data point in line {} is a non-numeric string.".format(i))
-                    bad_line[number] = i
-                    number += 1
-                    continue
-                pressure = [(25.4) / (14745 - 1638)] * (element - 1638)
-                element = pressure
-    np.delete(data, bad_line)
-    return data
-    
-def calculate_flow(data):
-    air_density = 1.199  # units = kg/m^3
-    d1 = 15 # the diameter of the larger part of the venturi tube, units = mm
-    d2 = 12 # the diameter of the constriction, units = mm
-    A1 = (d1/2)**2 * np.pi 
-    A2 = (d2/2)**2 * np.pi
-    data[0][7] = "Volumetric flow rate Q [m^3/sec]"
-    for line in data[1:]:
-        p2 = line[1]
-        if line[2] >= line[3]:
-            p1 = line[2]
-            direction = 1
-        else:
-            p1 = line[3]
-            direction = -1
-        Q = A1 * np.sqrt( (2/air_density) * (p1-p2) / ((A1/A2)**2 - 1)  ) * direction
-        line[7] = Q
-        return data
-
-def calculate_key_values(data):
-    data = np.delete(data, [1, 2, 3, 4, 5, 6], axis = 1)
-    duration = data[len(data)-1][0] - data[1][0]
-    
-    time = data[1:,0]
-    Q = data[1:, 1]
-    plt.plot(time, Q)
-
-    positive_peak_flow = 0
-    pos_t = 0
-    negative_peak_flow = 0
-    neg_t = 0
-
-    peak_times = []
-    t = 0
-    for line in data:
-        t = line[0]
-        if line[1] >= positive_peak_flow:
-            positive_peak_flow = line[1]
-            pos_t = t
-        if line[1] <= negative_peak_flow:
-            negative_peak_flow = line[1]
-            neg_t = t
-
-
-            count += 1
-
-
-    breaths = 
-    return duration, breaths, breath_rate_bpm, breath_times, apnea_count, leakage
-
-def create_metrics(duration, breaths, breath_rate_bpm, breath_times, apnea_count, leakage):
-    patient_metrics = {
-        "duration": duration,
-        "breaths": breaths,
-        "breath_rate_bpm": breath_rate_bpm,
-        "breath_times": breath_times,
-        "apnea_count": apnea_count,
-        "leakage": leakage
-    }
-    return patient_metrics
-
-def output_file_json(metrics_dict, filename):
-    out_name = filename.split(".")[0] + ".json"
-    out_file = open(out_name, "w")
-    json.dump(metrics_dict, out_file)
-    out_file.close()
-    return out_name
-
-
-if __name__ == "main":
-    filename = "sample_data/patient_01.txt"
-    logging.basicConfig(level = logging.INFO, filename = "cpap.log",
-                        filemode = "w")
-    cpap_measurement(filename)
 
 
 # Lec March 10__debug server

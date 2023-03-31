@@ -606,7 +606,7 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
     - plt.plot(t,y1)
     - plt.plot(t,y2)  [plots are shown in one window]
     - plt.show()
-    - plt.legend
+    - plt.legendtouc
 * data = np.loadtxt(filename, delimiter=",", dtype=int)
     load each row as an element
 
@@ -620,6 +620,7 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
     3. A python script file (example: cell_assay.py) that contains the single command “pass”. [new line at the end of the file]    (The reason this file is included is because pytest will fail and cause GitHub Actions to fail if pytest cannot find any python files to analyze.)
     
     The presence of these three files should allow GitHub Actions to run and successfully pass.  Once you see that GitHub Actions passes, merge this branch into the main branch.  Then, all of these files will exist on all new branches in the future and GitHub Actions will run.  You can then create a new branch and start adding your code to the python script that you created.
+    4. Return to the main folder of the repository and git add, commit, push
 
     4. Create venv
         0. create a new branch to setup venv
@@ -700,17 +701,61 @@ To open a new tab with multiple additional options, press Ctrl+Enter.
 
 
 # Lec March 3__
-* Flask Handler
+- app = Flask(__name__) 
+- 
+127.0.0.1 - - [16/Mar/2023 20:23:01] "GET / HTTP/1.1" 200 - [record of getting request from the URL]
+127.0.0.1 - - [16/Mar/2023 20:23:02] "GET /favicon.ico HTTP/1.1" 404 - [the error tells us we didn't set up an icon for the website]
+
+- pycharm suggestions: main->if __name__ == "main"
+- @app.route("/", methods=["GET"]) [decorator]
+- basic code for writing a server:
+1. define a variable that access the flask
+2. run it
+3. define what you want for each route to look like using decorator
+```
+from flask import Flask
+
+app = Flask(__name__)
+
+
+@app.route("/", methods=["GET"])
+def server_status():
+    return "Server On"
+
+
+if __name__ == '__main__':
+    app.run()
+```
+- always stop previous server code after make changes to your server code
+- servers are event-driven systems: don‘t know what order you will go into
+
+* Flask Handler: functions decorated with the `@app.route` [it handles the request that comes to that route]
     1. get input
     2. call other functions
     3. return a response
 
+* run the `server`, then run the `client`
 * np array need coma between elements, even if it is not shown on screen
 
-* always use jsonify
+* always use jsonify [even you know it's string or list, it‘s easier]
+* the internet can only access the string, so whether put or get should be a string:
+    server part: jsonify(answer)
+    client part: r.json()  [will tranfer r from a json string to a python variable]
+    ex:
+    `
+    @app.route("/add_two/<a>/<b>", methods=["GET"])
+    `[a, b are strings]
 
-
-
+* use status code to interact with the server to decide if the request is successful or not 
+    ex:
+    `
+    return "The answer was less than zero. BAD", 400
+    `
+    `
+    if r.status_code == 200:
+    x = r.json()
+    print(x + 2)
+    `
 
 
 

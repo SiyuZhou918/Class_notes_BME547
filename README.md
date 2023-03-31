@@ -606,7 +606,7 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
     - plt.plot(t,y1)
     - plt.plot(t,y2)  [plots are shown in one window]
     - plt.show()
-    - plt.legend
+    - plt.legendtouc
 * data = np.loadtxt(filename, delimiter=",", dtype=int)
     load each row as an element
 
@@ -620,6 +620,7 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
     3. A python script file (example: cell_assay.py) that contains the single command “pass”. [new line at the end of the file]    (The reason this file is included is because pytest will fail and cause GitHub Actions to fail if pytest cannot find any python files to analyze.)
     
     The presence of these three files should allow GitHub Actions to run and successfully pass.  Once you see that GitHub Actions passes, merge this branch into the main branch.  Then, all of these files will exist on all new branches in the future and GitHub Actions will run.  You can then create a new branch and start adding your code to the python script that you created.
+    4. Return to the main folder of the repository and git add, commit, push
 
     4. Create venv
         0. create a new branch to setup venv
@@ -644,7 +645,7 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
 
 - assignment6
     - breath time is not important, just make it consistent
-    - license: 40:52 in video
+    - license: 40:52 in video [a software license with your project (http://choosealicense.com/)]
 
 # Lec Feb 24__IDEs/Dubugging
 - dubbugger
@@ -663,165 +664,99 @@ https://github.com/dward2/BME547/blob/main/Lectures/exceptions.md
         - set a breakpoint at the lightning sign
         - set the condition
         - resume the program
-        
-
-
-
 - debug:
  - set breakpoint
  - run debugger
  
 
+# Lec March 1__Requests and Quick Flask
+- The client: A client is anyone (in our case, a computer program on our local computer) that wants to interact or share information with a web server or service.
+- Web Server or Service: A web server or service is a program running on a separate machine (another computer, a cloud computer, or a computer cluster).
+- API: An Application Programming Interface (API) provides instructions and/or an interface for accessing the functionality of a program or package.
+- RESTful APIs: APIs in the cloud and are how we interact with web servers. [Making requests on the web]
+  [Instead of installing and calling packages on our local computer, RESTful APIs allow us to call functionality in the cloud (on a server).]
+- Requests: A client makes a "request" of the server in order to interact.
+- Response: The server sends a "response" back to the client after a request. This response is often encoded as a JSON string. JSON strings are a standard method for information interchange over the internet.
+- URL: uniform resource locator [Calls to web services are done through URLs][URLs can be thought of as a function name to access a particular functionality of a server.]
+- endpoint
+- two main types of requests:
+    - GET
+    r = requests.get("https://api.github.com/repos/dward2/BME547/branches") [r = requests.get("<a string of URL of the website that I want to make requests to>/<put endpoints or route of the server I want>") ]
+    [`get request method` can also be used by `using the server(browser)`, but `post request` can not】
+    - POST
+    r = requests.post("http://vcm-21170.vm.duke.edu:5000/student", json=out_data) [you need to tell what type of data you will send]
+- print(r) [ex: Response [200]]
+- r.status_code [ex: 200][response code][tells you whether the request is good or not][ex: 404 tells you doesn't exist][200: status for good request] --[Always print that to make sure everything is good]
+- r.text [tells us what comes back from the server]
+- branches = r.json() [decode the JSON text string into a Python native variable type]__[always debug the file here to see what will be printed out]
+
+# GitHub Copilot;
+- Pycharm:
+See suggestions on a new tab: press Command+Shift+A, then click Open GitHub Copilot, or press Command+Shift+\ to open the new tab immediately
+- describe something you want to do using natural language within a comment
+- VS code:
+To open a new tab with multiple additional options, press Ctrl+Enter.
+
+
+
 
 # Lec March 3__
-* Flask Handler
+- app = Flask(__name__) 
+- 
+127.0.0.1 - - [16/Mar/2023 20:23:01] "GET / HTTP/1.1" 200 - [record of getting request from the URL]
+127.0.0.1 - - [16/Mar/2023 20:23:02] "GET /favicon.ico HTTP/1.1" 404 - [the error tells us we didn't set up an icon for the website]
+
+- pycharm suggestions: main->if __name__ == "main"
+- @app.route("/", methods=["GET"]) [decorator]
+- basic code for writing a server:
+1. define a variable that access the flask
+2. run it
+3. define what you want for each route to look like using decorator
+```
+from flask import Flask
+
+app = Flask(__name__)
+
+
+@app.route("/", methods=["GET"])
+def server_status():
+    return "Server On"
+
+
+if __name__ == '__main__':
+    app.run()
+```
+- always stop previous server code after make changes to your server code
+- servers are event-driven systems: don‘t know what order you will go into
+
+* Flask Handler: functions decorated with the `@app.route` [it handles the request that comes to that route]
     1. get input
     2. call other functions
     3. return a response
 
+* run the `server`, then run the `client`
 * np array need coma between elements, even if it is not shown on screen
 
-* always use jsonify
+* always use jsonify [even you know it's string or list, it‘s easier]
+* the internet can only access the string, so whether put or get should be a string:
+    server part: jsonify(answer)
+    client part: r.json()  [will tranfer r from a json string to a python variable]
+    ex:
+    `
+    @app.route("/add_two/<a>/<b>", methods=["GET"])
+    `[a, b are strings]
 
+* use status code to interact with the server to decide if the request is successful or not 
+    ex:
+    `
+    return "The answer was less than zero. BAD", 400
+    `
+    `
+    if r.status_code == 200:
+    x = r.json()
+    print(x + 2)
+    `
 
-
-import numpy as np
-import matplotlib.pyplot as plt
-import logging
-import json
-from scipy.signal import find_peaks
-
-def cpap_measurement(filename):
-    in_file = filename
-    data = input_data_entry(in_file)
-    data = parse_data(data)
-    data = calculate_flow(data)
-    [duration, breaths, breath_rate_bpm, breath_times, 
-     apnea_count, leakage] = calculate_key_values(data)
-    patient_metrics = create_metrics(duration, breaths, breath_rate_bpm, 
-                                     breath_times, apnea_count, leakage)
-    out_json = output_file_json(patient_metrics)
-    return
-
-
-def input_data_entry(in_file):
-    data = np.loadtxt(in_file, delimiter=",", dtype="str")
-    logging.info("This is the start of data analysis. \
-                 The name of the input file is {}.".format(in_file))
-    return data
- 
-def parse_data(data):
-    bad_line = []
-    number = 0
-    for i, line in enumerate(data[1:]):
-        if len(line) < 7:
-            logging.error("The data point in line {} is missing.".format(i))
-            bad_line[number] = i
-            number += 1
-        else:
-            if line[0] == "NaN":
-                logging.error("The data point in line {} is NaN(incorrect).".format(i))
-                bad_line[number] = i
-                number += 1
-                continue
-            try:
-                line[0] = float(line[0])
-            except ValueError:
-                logging.error("The data point in line {} is a non-numeric string(incorrect).".format(i))
-                bad_line[number] = i
-                number += 1
-                continue
-            for element in line[1:]:
-                if element == "NaN":
-                    logging.error("The data point in line {} is NaN(incorrect).".format(i))
-                    bad_line[number] = i
-                    number += 1
-                try:
-                    element = int(element)
-                except ValueError:
-                    logging.error("The data point in line {} is a non-numeric string.".format(i))
-                    bad_line[number] = i
-                    number += 1
-                    continue
-                pressure = [(25.4) / (14745 - 1638)] * (element - 1638)
-                element = pressure
-    np.delete(data, bad_line)
-    return data
-    
-def calculate_flow(data):
-    air_density = 1.199  # units = kg/m^3
-    d1 = 15 # the diameter of the larger part of the venturi tube, units = mm
-    d2 = 12 # the diameter of the constriction, units = mm
-    A1 = (d1/2)**2 * np.pi 
-    A2 = (d2/2)**2 * np.pi
-    data[0][7] = "Volumetric flow rate Q [m^3/sec]"
-    for line in data[1:]:
-        p2 = line[1]
-        if line[2] >= line[3]:
-            p1 = line[2]
-            direction = 1
-        else:
-            p1 = line[3]
-            direction = -1
-        Q = A1 * np.sqrt( (2/air_density) * (p1-p2) / ((A1/A2)**2 - 1)  ) * direction
-        line[7] = Q
-        return data
-
-def calculate_key_values(data):
-    data = np.delete(data, [1, 2, 3, 4, 5, 6], axis = 1)
-    duration = data[len(data)-1][0] - data[1][0]
-    
-    time = data[1:,0]
-    Q = data[1:, 1]
-    plt.plot(time, Q)
-
-    positive_peak_flow = 0
-    pos_t = 0
-    negative_peak_flow = 0
-    neg_t = 0
-
-    peak_times = []
-    t = 0
-    for line in data:
-        t = line[0]
-        if line[1] >= positive_peak_flow:
-            positive_peak_flow = line[1]
-            pos_t = t
-        if line[1] <= negative_peak_flow:
-            negative_peak_flow = line[1]
-            neg_t = t
-
-
-            count += 1
-
-
-    breaths = 
-    return duration, breaths, breath_rate_bpm, breath_times, apnea_count, leakage
-
-def create_metrics(duration, breaths, breath_rate_bpm, breath_times, apnea_count, leakage):
-    patient_metrics = {
-        "duration": duration,
-        "breaths": breaths,
-        "breath_rate_bpm": breath_rate_bpm,
-        "breath_times": breath_times,
-        "apnea_count": apnea_count,
-        "leakage": leakage
-    }
-    return patient_metrics
-
-def output_file_json(metrics_dict, filename):
-    out_name = filename.split(".")[0] + ".json"
-    out_file = open(out_name, "w")
-    json.dump(metrics_dict, out_file)
-    out_file.close()
-    return out_name
-
-
-if __name__ == "main":
-    filename = "sample_data/patient_01.txt"
-    logging.basicConfig(level = logging.INFO, filename = "cpap.log",
-                        filemode = "w")
-    cpap_measurement(filename)
 
 
 # Lec March 10__debug server
@@ -834,3 +769,31 @@ marking
 fakes
 
 integrate the unit tests
+
+# Lec March 22__Virtual Machines, Screen, Intro to MongoDB/PyMODM
+* step to log in vm:
+ - power on [https://vcm.duke.edu/]
+ - ssh sz274@vcm-32671.vm.duke.edu
+
+* 
+
+# Lec March 24__Examples of MongoDB
+* if want to change the db:
+    1. search first
+    2. then change 
+
+# Lec March 29__GUI
+* GUI: event-driven
+* run part code -> setup, then wait for event and give response
+* event include: type in text, move the mouse, etc
+* GUI Design:
+    - make actions cancelable or reversible
+    - provide frequent feedback
+    - create cues about what should be done next:
+        - Use checklists or label steps
+        - Put the next action or input near to the previous action or input
+    - Be consistent in how interface works
+    - Avoid jargon
+    - just a test for ssh
+
+
